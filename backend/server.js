@@ -2,11 +2,6 @@ const https = require("http");
 const app = require("./app");
 var fs = require('fs');
 
-// var privateKey = fs.readFileSync('sslcert/server.key');
-// var certificate = fs.readFileSync('sslcert/server.crt');
-
-// var credentials = {key: privateKey, cert: certificate};
-
 const PORT = process.env.PORT || 80;
 // https
 // //   .createServer(credentials,app)
