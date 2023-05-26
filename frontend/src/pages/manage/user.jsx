@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate  } from "react-router-dom";
+import axios from "axios";
 
-import { SERVER_URL } from '@/config';
 import { Card,CardHeader, CardBody, Typography, Alert, Chip, Dialog, DialogHeader, DialogBody,
           DialogFooter, Input, Button, Select,Option, IconButton } from "@material-tailwind/react";
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 import DatePicker from "react-datepicker";
-import { registerLocale, setDefaultLocale } from  "react-datepicker";
-import es from 'date-fns/locale/es';
 import toast, { Toaster } from 'react-hot-toast';
 import "react-datepicker/dist/react-datepicker.css";
-import axios from "axios";
+
 import {useCounterStore} from "@/Store";
-registerLocale('es', es)
-const Pagination = ({totalpage, currentpage ,size, searchkey}) =>{
+import { SERVER_URL } from '@/config';
+
+const Pagination = ({totalpage, currentpage ,size, searchkey,children}) =>{
   const [active, setActive] = React.useState(currentpage);
   const [pagesize, setPagesize] = React.useState(size);
   const [search, setSearch] = React.useState(searchkey);
@@ -58,31 +57,34 @@ const Pagination = ({totalpage, currentpage ,size, searchkey}) =>{
     }
   }
   return (
-    <div className="flex items-center p-3 gap-4">
-      <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total  </div>
-      <Button
-        variant="text"
-        color="blue-gray"
-        className="flex items-center gap-2 rounded-full"
-        onClick={prev}
-        disabled={active === 1}
-      >
-        <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
-      </Button>
-      <div className="flex items-center gap-2">
-        {Pager}
+    <>
+      {children}
+      <div className="flex items-center p-3 gap-4">
+        <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total  </div>
+        <Button
+          variant="text"
+          color="blue-gray"
+          className="flex items-center gap-2 rounded-full"
+          onClick={prev}
+          disabled={active === 1}
+        >
+          <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
+        </Button>
+        <div className="flex items-center gap-2">
+          {Pager}
+        </div>
+        <Button
+          variant="text"
+          color="blue-gray"
+          className="flex items-center gap-2 rounded-full"
+          onClick={next}
+          disabled={active === totalpage}
+        >
+          Next
+          <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
+        </Button>
       </div>
-      <Button
-        variant="text"
-        color="blue-gray"
-        className="flex items-center gap-2 rounded-full"
-        onClick={next}
-        disabled={active === totalpage}
-      >
-        Next
-        <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-      </Button>
-    </div>
+    </>
   )
   }
 export function User() {
@@ -227,75 +229,76 @@ export function User() {
              <Input type="search" label="Search" value={search} onChange={handleSearch}/>
              <div className='col-span-2'></div>
           </div>
-          <table className="w-full min-w-[640px] table-auto">
-            <thead>
-              <tr>
-                {["no", "name", "email", "password", "create on", "endDate"].map((el) => (
-                  <th
-                    key={el}
-                    className="border-b border-blue-gray-50 py-3 px-10 text-left"
-                  >
-                    <Typography
-                      variant="small"
-                      className="text-[11px] font-bold uppercase text-blue-gray-400"
+          <Pagination totalpage={pagination1.totalPages} currentpage={1} pagesize={pagesize} searchkey={search}>
+            <table className="w-full min-w-[640px] table-auto">
+              <thead>
+                <tr>
+                  {["no", "name", "email", "password", "create on", "endDate"].map((el) => (
+                    <th
+                      key={el}
+                      className="border-b border-blue-gray-50 py-3 px-10 text-left"
                     >
-                      {el}
-                    </Typography>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-            {
-            userlist&&userlist.length>0?
-            userlist.map((item,n) => {
-                return (
-                    <tr className='hover:bg-slate-100' onClick={() => handleOpen(true,n+1)} key={n}>
-                        <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-semibold"
-                            >
-                              {(active-1)*pagesize+n+1}
-                            </Typography></td>
-                        <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-semibold"
-                            >
-                              {item.name}
+                      <Typography
+                        variant="small"
+                        className="text-[11px] font-bold uppercase text-blue-gray-400"
+                      >
+                        {el}
+                      </Typography>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+              {
+              userlist&&userlist.length>0?
+              userlist.map((item,n) => {
+                  return (
+                      <tr className='hover:bg-slate-100' onClick={() => handleOpen(true,n+1)} key={n}>
+                          <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-semibold"
+                              >
+                                {(active-1)*pagesize+n+1}
+                              </Typography></td>
+                          <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-semibold"
+                              >
+                                {item.name}
+                              </Typography>
+                            </td>
+                          <td className='p-4 border-b border-blue-gray-50  px-10'>
+                            <Typography
+                                variant="small"
+                                color="blue-gray"
+                                className="font-semibold"
+                              >
+                                {item.email}
                             </Typography>
                           </td>
-                        <td className='p-4 border-b border-blue-gray-50  px-10'>
-                          <Typography
-                              variant="small"
-                              color="blue-gray"
-                              className="font-semibold"
-                            >
-                              {item.email}
-                          </Typography>
-                        </td>
-                        <td className='p-4 border-b border-blue-gray-50 px-10'>
-                          {item.name!="admin"?item.password:"******"}
-                        </td>
-                        <td className='p-4 border-b border-blue-gray-50 px-10'>
-                          {new Date(item.createdOn).toLocaleString()}
-                        </td>
-                        <td className='p-4 border-b border-blue-gray-50 px-10'>
-                          {item.name!="admin"?new Date(item.endDate).toLocaleString():""}
-                        </td>
-                    </tr>
-                    )
-                }):
-                <tr>
-                  <td  className='text-center text-2xl p-4' colSpan={6}>
-                     Empty Data
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          <Pagination totalpage={pagination1.totalPages} currentpage={1} pagesize={pagesize} searchkey={search}/>
+                          <td className='p-4 border-b border-blue-gray-50 px-10'>
+                            {item.name!="admin"?item.password:"******"}
+                          </td>
+                          <td className='p-4 border-b border-blue-gray-50 px-10'>
+                            {new Date(item.createdOn).toLocaleString()}
+                          </td>
+                          <td className='p-4 border-b border-blue-gray-50 px-10'>
+                            {item.name!="admin"?new Date(item.endDate).toLocaleString():""}
+                          </td>
+                      </tr>
+                      )
+                  }):
+                  <tr>
+                    <td  className='text-center text-2xl p-4' colSpan={6}>
+                      Empty Data
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </Pagination>
         </CardBody>
       </Card>
       <Dialog open={open} handler={() => handleOpen(false,0)} size='sm'>
