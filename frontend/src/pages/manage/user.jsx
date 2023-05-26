@@ -12,10 +12,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import {useCounterStore} from "@/Store";
 import { SERVER_URL } from '@/config';
 
-const Pagination = ({totalpage ,children}) =>{
+const Pagination = ({totalDocs,getList,children}) =>{
   const [active, setActive] = React.useState(1);
   const [pagesize, setPagesize] = React.useState(5);
   const [search, setSearch] = React.useState("");
+  var totalpage = Math.ceil(totalDocs/pagesize);
+
   const handleSearch = (e) =>{
     setSearch(e.target.value)
   }
@@ -55,20 +57,20 @@ const Pagination = ({totalpage ,children}) =>{
     }
   }
   else{
-    for(let i=totalpage-5;i<=totalpage;i++){
+    for(let i=totalpage-4;i<=totalpage;i++){
       Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
     }
   }
-  const getUserList = useCounterStore(state => state.getUserList)
+  
 
   useEffect(() => {
-    getUserList(active,pagesize,search)
+    getList(active,pagesize,search)
 }, [active,pagesize,search])
   return (
     <>
       <div className='grid grid-cols-4 gap-2 text-white p-3'>
           <Select label="Select pagesize" className='flex-2'
-              value={pagesize} onChange={e=>setPagesize(e)}>
+              value={pagesize} onChange={e=>{setPagesize(e), setActive(1)}}>
               <Option value='5'>5</Option>
               <Option value='10'>10</Option>
               <Option value='20'>20</Option>
@@ -79,7 +81,7 @@ const Pagination = ({totalpage ,children}) =>{
       </div>
       {children}
       <div className="flex items-center p-3 gap-4">
-        <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total  </div>
+        <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total {totalDocs} </div>
         <Button
           variant="text"
           color="blue-gray"
@@ -111,10 +113,9 @@ export function User() {
   const token = localStorage.getItem("authToken");
   if(!token||token=="") navigate('/auth/sign-in')
   //page
-  const getUserList = useCounterStore(state => state.getUserList)
   const pagination1 = useCounterStore(state => state.pagination1)
   const userlist = pagination1.docs
-
+  console.log(pagination1)
   const [enDate, setEnDate] = useState(new Date());
   const [month, setMonth1] = useState('');
   const [open, setOpen] = useState(false);
@@ -224,7 +225,10 @@ export function User() {
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
             
-          <Pagination totalpage={pagination1.totalPages}>
+          <Pagination 
+            totalDocs={pagination1.totalDocs} 
+            getList = {useCounterStore(state => state.getUserList)}
+          >
             <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
@@ -249,14 +253,16 @@ export function User() {
               userlist.map((item,n) => {
                   return (
                       <tr className='hover:bg-slate-100' onClick={() => handleOpen(true,n+1)} key={n}>
-                          <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
+                          <td className='p-4 border-b border-blue-gray-50  px-10'>
+                            <Typography
                                 variant="small"
                                 color="blue-gray"
                                 className="font-semibold"
                               >
-                                {n+1}
+                                {(pagination1.page-1)*pagination1.limit+n+1}
                               </Typography></td>
-                          <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
+                          <td className='p-4 border-b border-blue-gray-50  px-10'>
+                            <Typography
                                 variant="small"
                                 color="blue-gray"
                                 className="font-semibold"
