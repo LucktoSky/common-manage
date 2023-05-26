@@ -60,34 +60,6 @@ async function getUsers(req,res){
         }) 
     }
 }
-async function getUsers1(req,res){
-    try {
-          User.find({})
-            .then(users=>res.json({user:users}))
-       
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            success:false,
-            message:error.message,
-        }) 
-    }
-}
-async function getUser(req,res){
-    try {
-        console.log(req.params.id)
-        res.json({id:"recived"})
-        //   User.find({})
-        //     .then(users=>res.json({user:users}))
-       
-    } catch (error) {
-        console.log(error);
-        res.status(403).json({
-            success:false,
-            message:error.message,
-        }) 
-    }
-}
 async function editUser(req,res){
     try {
         const {name, email} = req.body;
