@@ -12,10 +12,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import {useCounterStore} from "@/Store";
 import { SERVER_URL } from '@/config';
 
-const Pagination = ({totalpage, currentpage ,size, searchkey,children}) =>{
-  const [active, setActive] = React.useState(currentpage);
-  const [pagesize, setPagesize] = React.useState(size);
-  const [search, setSearch] = React.useState(searchkey);
+const Pagination = ({totalpage ,children}) =>{
+  const [active, setActive] = React.useState(1);
+  const [pagesize, setPagesize] = React.useState(5);
+  const [search, setSearch] = React.useState("");
+  const handleSearch = (e) =>{
+    setSearch(e.target.value)
+  }
   const getItemProps = (index) =>
     ({
       variant: active === index ? "filled" : "text",
@@ -56,8 +59,24 @@ const Pagination = ({totalpage, currentpage ,size, searchkey,children}) =>{
       Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
     }
   }
+  const getUserList = useCounterStore(state => state.getUserList)
+
+  useEffect(() => {
+    getUserList(active,pagesize,search)
+}, [active,pagesize,search])
   return (
     <>
+      <div className='grid grid-cols-4 gap-2 text-white p-3'>
+          <Select label="Select pagesize" className='flex-2'
+              value={pagesize} onChange={e=>setPagesize(e)}>
+              <Option value='5'>5</Option>
+              <Option value='10'>10</Option>
+              <Option value='20'>20</Option>
+              <Option value='50'>50</Option>
+          </Select>
+          <Input type="search" label="Search" value={search} onChange={handleSearch}/>
+          <div className='col-span-2'></div>
+      </div>
       {children}
       <div className="flex items-center p-3 gap-4">
         <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total  </div>
@@ -92,12 +111,7 @@ export function User() {
   const token = localStorage.getItem("authToken");
   if(!token||token=="") navigate('/auth/sign-in')
   //page
-  const [active, setActive] = React.useState(1);
-  const [pagesize, setPagesize] = React.useState(5);
-  const [search, setSearch] = React.useState("");
-
   const getUserList = useCounterStore(state => state.getUserList)
-
   const pagination1 = useCounterStore(state => state.pagination1)
   const userlist = pagination1.docs
 
@@ -112,9 +126,7 @@ export function User() {
     _id:0
   });
   var dt;
-  const handleSearch = (e) =>{
-    setSearch(e.target.value)
-  }
+
   const handleSelect = (e) =>{
     setMonth1(e);
     dt = new Date();
@@ -174,7 +186,6 @@ export function User() {
               toast.success(res.data.message)
             else 
               toast.error(res.data.message)
-              getUserList(active,pagesize,search)
               }
             )
         else 
@@ -184,7 +195,6 @@ export function User() {
               toast.success(res.data.message)
             else 
               toast.error(res.data.message)
-            getUserList(active,pagesize,search)
               }
             )
         handleOpen(false,0);
@@ -196,15 +206,10 @@ export function User() {
         toast.success(res.data.message)
       else 
         toast.error(res.data.message)
-      getUserList(active,pagesize,search)
-
         }
       )
     handleOpen(false,0);
   }
-    useEffect(() => {
-        getUserList(active,pagesize,search)
-    }, [active,pagesize,search])
 
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
@@ -218,18 +223,8 @@ export function User() {
           <Button variant="text" className='text-white' onClick={()=>handleOpen(true,0)}>Add User</Button>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-            <div className='grid grid-cols-4 gap-2 text-white p-3'>
-              <Select label="Select pagesize" className='flex-2'
-                  value={pagesize} onChange={e=>setPagesize(e)}>
-                  <Option value='5'>5</Option>
-                  <Option value='10'>10</Option>
-                  <Option value='20'>20</Option>
-                  <Option value='50'>50</Option>
-              </Select>
-             <Input type="search" label="Search" value={search} onChange={handleSearch}/>
-             <div className='col-span-2'></div>
-          </div>
-          <Pagination totalpage={pagination1.totalPages} currentpage={1} pagesize={pagesize} searchkey={search}>
+            
+          <Pagination totalpage={pagination1.totalPages}>
             <table className="w-full min-w-[640px] table-auto">
               <thead>
                 <tr>
@@ -259,7 +254,7 @@ export function User() {
                                 color="blue-gray"
                                 className="font-semibold"
                               >
-                                {(active-1)*pagesize+n+1}
+                                {n+1}
                               </Typography></td>
                           <td className='p-4 border-b border-blue-gray-50  px-10'><Typography
                                 variant="small"
