@@ -13,7 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import {useCounterStore} from "@/Store";
 registerLocale('es', es)
-const Pagination = (totalpage, currentpage ,size, searchkey) =>{
+const Pagination = ({totalpage, currentpage ,size, searchkey}) =>{
   const [active, setActive] = React.useState(currentpage);
   const [pagesize, setPagesize] = React.useState(size);
   const [search, setSearch] = React.useState(searchkey);
@@ -36,6 +36,54 @@ const Pagination = (totalpage, currentpage ,size, searchkey) =>{
 
     setActive(active - 1);
   };
+  const Pager = []
+  if(totalpage<5){
+    for(let i=1; i<=totalpage;i++){
+      Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
+    }
+  }
+  else if(active<=3){
+    for(let i=1;i<6;i++){
+      Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
+    }
+  }
+  else if(active<totalpage-1){
+    for(let i=active-2;i<=active+2;i++){
+      Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
+    }
+  }
+  else{
+    for(let i=totalpage-5;i<=totalpage;i++){
+      Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
+    }
+  }
+  return (
+    <div className="flex items-center p-3 gap-4">
+      <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total  </div>
+      <Button
+        variant="text"
+        color="blue-gray"
+        className="flex items-center gap-2 rounded-full"
+        onClick={prev}
+        disabled={active === 1}
+      >
+        <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
+      </Button>
+      <div className="flex items-center gap-2">
+        {Pager}
+      </div>
+      <Button
+        variant="text"
+        color="blue-gray"
+        className="flex items-center gap-2 rounded-full"
+        onClick={next}
+        disabled={active === totalpage}
+      >
+        Next
+        <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
+      </Button>
+    </div>
+  )
   }
 export function User() {
   let navigate  = useNavigate ();
@@ -45,27 +93,7 @@ export function User() {
   const [active, setActive] = React.useState(1);
   const [pagesize, setPagesize] = React.useState(5);
   const [search, setSearch] = React.useState("");
-  
-  const getItemProps = (index) =>
-    ({
-      variant: active === index ? "filled" : "text",
-      color: active === index ? "blue" : "blue-gray",
-      onClick: () => setActive(index),
-      className: "rounded-full",
-    })
- 
-  const next = () => {
-    if (active === pagination1.totalPages) return;
- 
-    setActive(active + 1);
-  };
- 
-  const prev = () => {
-    if (active === 1) return;
- 
-    setActive(active - 1);
-  };
-  //end
+
   const getUserList = useCounterStore(state => state.getUserList)
 
   const pagination1 = useCounterStore(state => state.pagination1)
@@ -175,27 +203,7 @@ export function User() {
     useEffect(() => {
         getUserList(active,pagesize,search)
     }, [active,pagesize,search])
-    const Pager = []
-    if(pagination1.totalPages<5){
-      for(let i=1; i<=pagination1.totalPages;i++){
-        Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
-      }
-    }
-    else if(active<=3){
-      for(let i=1;i<6;i++){
-        Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
-      }
-    }
-    else if(active<pagination1.totalPages-1){
-      for(let i=active-2;i<=active+2;i++){
-        Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
-      }
-    }
-    else{
-      for(let i=pagination1.totalPages-5;i<=pagination1.totalPages;i++){
-        Pager.push( <IconButton key={i} {...getItemProps(i)}>{i}</IconButton>)
-      }
-    }
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -287,31 +295,7 @@ export function User() {
               }
             </tbody>
           </table>
-          <div className="flex items-center p-3 gap-4">
-           <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total {pagination1.totalDocs} </div>
-              <Button
-                variant="text"
-                color="blue-gray"
-                className="flex items-center gap-2 rounded-full"
-                onClick={prev}
-                disabled={active === 1}
-              >
-                <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
-              </Button>
-              <div className="flex items-center gap-2">
-                {Pager}
-              </div>
-              <Button
-                variant="text"
-                color="blue-gray"
-                className="flex items-center gap-2 rounded-full"
-                onClick={next}
-                disabled={active === pagination1.totalPages}
-              >
-                Next
-                <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-              </Button>
-            </div>
+          <Pagination totalpage={pagination1.totalPages} currentpage={1} pagesize={pagesize} searchkey={search}/>
         </CardBody>
       </Card>
       <Dialog open={open} handler={() => handleOpen(false,0)} size='sm'>
