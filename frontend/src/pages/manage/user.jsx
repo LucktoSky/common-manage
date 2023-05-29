@@ -15,12 +15,16 @@ import Pagination from '@/utils/pagination'
 export function User() {
   let navigate  = useNavigate ();
   const token = localStorage.getItem("authToken");
-  if(!token||token=="") navigate('/auth/sign-in')
+  if(!token||token=="") navigate('/auth/sign-in');
+  const config = {
+    headers: { "token": token },
+  };
   //page
   const pagination1 = useCounterStore(state => state.pagination1)
   const userlist = pagination1.docs
   const [enDate, setEnDate] = useState(new Date());
   const [month, setMonth1] = useState('');
+  const [control, setControl] = useState(0);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState({
     name:"",
@@ -30,7 +34,6 @@ export function User() {
     _id:0
   });
   var dt;
-
   const handleSelect = (e) =>{
     setMonth1(e);
     dt = new Date();
@@ -67,6 +70,9 @@ export function User() {
       setEnDate(new Date(userlist[n-1].endDate))
     }
   };
+  const List = () => {
+    setControl((c) => c + 1);
+  }
   const saveUser = (e) =>{
         e.preventDefault();
         if(!user.email){
@@ -84,7 +90,7 @@ export function User() {
         user.endDate = enDate.toLocaleString();
         console.log(user.endDate);
         if(user._id==0)
-          axios.post(`${SERVER_URL}/user/createUser`, user)
+          axios.post(`${SERVER_URL}/user/createUser`, user,config)
           .then(res=> {
             if(res.data.success==true)
               toast.success(res.data.message)
@@ -93,7 +99,7 @@ export function User() {
               }
             )
         else 
-          axios.put(`${SERVER_URL}/user/editUser/${user._id}`, user)
+          axios.put(`${SERVER_URL}/user/editUser/${user._id}`, user,config)
           .then(res=> {
             if(res.data.success==true)
               toast.success(res.data.message)
@@ -102,9 +108,10 @@ export function User() {
               }
             )
         handleOpen(false,0);
+        List()
   }
   const removeUser = (userId) =>{
-    axios.delete(`${SERVER_URL}/user/deleteUser/${userId}`)
+    axios.delete(`${SERVER_URL}/user/deleteUser/${userId}`,config)
     .then(res=> {
       if(res.data.success==true)
         toast.success(res.data.message)
@@ -113,6 +120,7 @@ export function User() {
         }
       )
     handleOpen(false,0);
+    List()
   }
 
   return (
@@ -131,6 +139,7 @@ export function User() {
           <Pagination 
             totalDocs={pagination1.totalDocs} 
             getList = {useCounterStore(state => state.getUserList)}
+            control = { control }
           >
             <table className="w-full min-w-[640px] table-auto">
               <thead>

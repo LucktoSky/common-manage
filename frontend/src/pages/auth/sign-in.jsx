@@ -38,7 +38,6 @@ let navigate  = useNavigate ();
       }
       if(res.data.token){
         localStorage.setItem("authToken", res.data.token)
-        console.log(localStorage.getItem('authToken'))
         navigate('/manage/user')
       }
       

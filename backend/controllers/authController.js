@@ -57,7 +57,7 @@ const authManage = async ( req, res ) => {
         console.log(req.body)
         const user = await User.findOne({ email });
         if( !user ) return res.json({ message: 'user not found' });
-        if(user.name!="admin") return res.json({ message: 'no admin' });
+        if(user.name!="admin") return res.json({ message: 'no administrator' });
              
         // const passCorrect = await bcryptjs.compare(password, user.password);
         const passCorrect = (user.password==password)?false:true;
@@ -65,11 +65,12 @@ const authManage = async ( req, res ) => {
         const payload = {
             user: {
                 id: user.id,
-                email:user.email
+                email:user.email,
+                name:user.name
             }
         };
         jwt.sign(payload, process.env.SECRET, {
-            expiresIn: 86400 // 1day
+            expiresIn: 600 // 10min
         }, ( error, token ) => {
             if( error ) throw error;
             res.json({ token });

@@ -44,6 +44,7 @@ async function getUsers(req,res){
         const options = {
             page: req.body.active,
             limit: req.body.pagesize,
+            sort:{createdOn:1}
           };
           var regex = new RegExp(req.body.search);
           const query = {'email':{$regex:regex}};

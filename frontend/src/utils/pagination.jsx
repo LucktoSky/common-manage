@@ -2,7 +2,7 @@ import React, { useState, useEffect, memo } from 'react'
 
 import { Input, Button, Select,Option, IconButton } from "@material-tailwind/react";
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-const Pagination = ({totalDocs,getList,children}) =>{
+const Pagination = ({totalDocs,getList,control,children}) =>{
     const [active, setActive] = useState(1);
     const [pagesize, setPagesize] = useState(5);
     const [search, setSearch] = useState("");
@@ -56,7 +56,7 @@ const Pagination = ({totalDocs,getList,children}) =>{
   
     useEffect(() => {
       getList(active,pagesize,search)
-  }, [active,pagesize,search])
+  }, [active,pagesize,search,control])
     return (
       <>
         <div className='grid grid-cols-4 gap-2 text-white p-3'>
@@ -72,7 +72,7 @@ const Pagination = ({totalDocs,getList,children}) =>{
         </div>
         {children}
         <div className="flex items-center p-3 gap-4">
-          <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize} of Total {totalDocs} </div>
+          <div className='basis-1/2 pl-5'>from {(active-1)*pagesize+1} to {active*pagesize<totalDocs?active*pagesize:totalDocs} of Total {totalDocs} </div>
           <Button
             variant="text"
             color="blue-gray"

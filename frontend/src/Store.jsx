@@ -1,7 +1,10 @@
 import {create} from "zustand";
 import { SERVER_URL } from './config';
 import axios from "axios";
-
+const token = localStorage.getItem("authToken");
+const config = {
+  headers: { "token": token },
+};
 export const useCounterStore = create((set,get) => (
    {
     number: 1234,
@@ -12,7 +15,7 @@ export const useCounterStore = create((set,get) => (
     setNumber: (data) => set({number: data}),
     setUserList: (data) => set({userlist: data}),
     getUserList: async (active,pagesize,search) => {
-        axios.post(`${SERVER_URL}/user/getUsers`,{active,pagesize,search})
+        axios.post(`${SERVER_URL}/user/getUsers`,{active,pagesize,search},config)
             .then(res => set({pagination1: res.data}))
     }
    }
