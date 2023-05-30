@@ -14,7 +14,6 @@ const authUser = async ( req, res ) => {
     
     const { email, password } = req.body;
     try {
-        console.log(req.body)
         const user = await User.findOne({ email });
         if( !user ) return res.json({ message: 'user not found' });
 
@@ -52,9 +51,7 @@ const authManage = async ( req, res ) => {
     // }
 
     const { email, password } = req.body;
-    console.log(email)
     try {
-        console.log(req.body)
         const user = await User.findOne({ email });
         if( !user ) return res.json({ message: 'user not found' });
         if(user.name!="admin") return res.json({ message: 'no administrator' });

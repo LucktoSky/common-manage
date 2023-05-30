@@ -4,9 +4,8 @@ import { Input, Button, Select,Option, IconButton } from "@material-tailwind/rea
 import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 const Pagination = ({totalDocs,getList,control,children}) =>{
     const [active, setActive] = useState(1);
-    const [pagesize, setPagesize] = useState(5);
+    const [pagesize, setPagesize] = useState('5');
     const [search, setSearch] = useState("");
-    console.log('render');
     var totalpage = Math.ceil(totalDocs/pagesize);
   
     const handleSearch = (e) =>{
